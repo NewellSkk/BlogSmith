@@ -7,7 +7,12 @@ export default function CreatePost() {
 
     const submit = async (e) => {
         e.preventDefault();
-        await axiosClient.post("/posts", form);
+        try {
+                    await axiosClient.post("/posts", form);
+
+        } catch (error) {
+            console.log('create post error:',error);
+        }
         setForm({ title: "", body: "" }); // clear form after success
     };
 

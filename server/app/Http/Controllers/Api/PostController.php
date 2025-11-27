@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\PostResource;
+use Illuminate\Support\Facades\Auth;
 use SebastianBergmann\Environment\Console;
 
 class PostController extends Controller
@@ -14,22 +16,35 @@ class PostController extends Controller
      */
     public function index()
     {
+        $query=Post::with('user')->latest()->get();
+        $posts = PostResource::collection($query);
         return response()->json([
-            ['id' => 1, 'title' => 'First Post', 'body' => 'Lorem ipsum'],
-            ['id' => 2, 'title' => 'Second Post', 'body' => 'Dolor sit amet'],
-            ['id' => 3, 'title' => 'Third Post', 'body' => 'Consectetur adipiscing']
+            'success' => true,
+            'message' => 'Posts retrieval successful',
+            'posts' => $posts
 
-        ]);
+        ], 200);
     }
 
-    
+
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
-        //
+        $incomingFields = $request->validate([
+            'title' => 'required',
+            'body' => 'required'
+        ]);
+        $incomingFields = [...$incomingFields, 'user_id' => Auth::user()->id];
+        $post = Post::create($incomingFields);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Post created successfully',
+            'data' => $post
+        ], 201);
     }
 
     /**

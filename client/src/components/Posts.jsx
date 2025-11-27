@@ -9,7 +9,10 @@ const Posts = () => {
   useEffect(() => {
     axiosClient
       .get("/posts")
-      .then((res) => setPosts(res.data))
+      .then((res) => {
+        setPosts(res.data.posts);
+        console.log("POSTS:", res.data.posts);
+      })
       .finally(setLoading(false));
   }, []);
   return (
@@ -19,9 +22,12 @@ const Posts = () => {
         <Loading />
       ) : (
         posts.map((post) => (
-          <div key={post.id} className={styles.postCard}>
+          <div key={post.title} className={styles.postCard}>
             <h3 className={styles.postTitle}>
-              {post.title} <span className={styles.author}>by {post.user?.name ?? "Unknown"}</span>
+              {post.title}{" "}
+              <span className={styles.author}>
+                by {post.user?.name ?? "Unknown"}
+              </span>
             </h3>
 
             <p className={styles.postBody}>{post.body}</p>
