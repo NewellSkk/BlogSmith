@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
 import Navbar from "../components/Navbar";
-import styles from "../styles/Home.module.css"; // adjust path
+import styles from "../styles/Home.module.css";
 
 export default function Home() {
  

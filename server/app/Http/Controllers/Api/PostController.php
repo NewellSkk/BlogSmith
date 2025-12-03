@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PostResource;
 use Illuminate\Support\Facades\Auth;
-use SebastianBergmann\Environment\Console;
 
 class PostController extends Controller
 {
@@ -16,7 +15,7 @@ class PostController extends Controller
      */
     public function index()
     {
-        $query=Post::with('user')->latest()->get();
+        $query = Post::with('user')->latest()->get();
         $posts = PostResource::collection($query);
         return response()->json([
             'success' => true,
@@ -68,7 +67,10 @@ class PostController extends Controller
      */
     public function edit(Post $post)
     {
-        //
+        $value = new PostResource($post);
+        return response()->json([
+            'post' => $value
+        ], 200);
     }
 
     /**
@@ -76,7 +78,28 @@ class PostController extends Controller
      */
     public function update(Request $request, Post $post)
     {
-        //
+        // VALIDATION
+        try {
+            $incomingFields = $request->validate([
+                'title' => 'required',
+                'body' => 'required'
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $err) {
+            return response()->json([
+                'errors' => $err->errors(),
+                'message' => 'Validation failed, check your input.'
+            ]);
+        }
+        //SANITIZATION
+        $sanitized = [
+            'title' => strip_tags($incomingFields['title']),
+            'body' => strip_tags($incomingFields['body'])
+        ];
+        // DATABASE UPDATE
+        $post->update($incomingFields);
+        return response()->json([
+            'message'=>'Post update successful'
+        ],200);
     }
 
     /**
@@ -84,6 +107,11 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
-        //
+        if ($post->user_id != Auth::user()->id) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized action'], 401);
+        };
+
+        $post->delete();
+        return response(null, 201);
     }
 }

@@ -44,7 +44,10 @@
   display: flex;
   gap: 10px;
 }
-
+/* Hide function for non owner of post */
+.buttonRow.hideFunction{
+  display: none;
+}
 .button {
   background-color: #1a1a1a;
   color: #fff;
