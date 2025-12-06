@@ -5,7 +5,7 @@ import { AuthContext } from "../context/AuthContext";
 import styles from "../styles/Auth.module.css";
 
 const Register = () => {
-  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [form, setForm] = useState({ name: "", email: "", password: "",password_confirmation:"" });
   const { setUser } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -57,6 +57,17 @@ const Register = () => {
             autoComplete="current-password"
             className={styles.input}
             onChange={(e) => setForm({ ...form, password: e.target.value })}
+          />
+        </div>
+
+          <div className={styles.formGroup}>
+          <label className={styles.label}>Confirm Password</label>
+          <input
+            type="password"
+            placeholder="Password"
+            autoComplete="current-password"
+            className={styles.input}
+            onChange={(e) => setForm({ ...form, password_confirmation: e.target.value })}
           />
         </div>
 
