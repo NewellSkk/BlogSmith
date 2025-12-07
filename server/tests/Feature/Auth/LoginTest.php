@@ -47,7 +47,7 @@ class LoginTest extends TestCase
             'email' => 'john@example.com',
             'password' => 'different123',
         ]);
-        $response->assertStatus(401)
-            ->assertJson(['message' => 'invalid credentials']);
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['email']);
     }
 }

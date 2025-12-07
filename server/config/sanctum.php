@@ -81,4 +81,7 @@ return [
         'validate_csrf_token' => Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
     ],
 
+    /**Token expiration */
+    'expiration'=>60 * 24 * 7,
+
 ];
