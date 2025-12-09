@@ -2,6 +2,7 @@ import { useContext } from "react";
 import { NavLink } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import axiosClient from "../api/axiosClient";
+import Cookies from "js-cookie";
 import styles from "../styles/Navbar.module.css"; // adjust path
 
 export default function Navbar() {
@@ -10,7 +11,7 @@ export default function Navbar() {
   const logout = async () => {
     try {
       const res = await axiosClient.get("/logout");
-      if (res.status === 200) setUser(null);
+      if (res.status === 200) {setUser(null);Cookies.remove('auth_token')};
     } catch (err) {
       console.error("Logout failed", err);
     }

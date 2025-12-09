@@ -22,7 +22,7 @@ class LoginTest extends TestCase
             'password' => 'password123',
         ]);
 
-        $response->assertStatus(201)
+        $response->assertStatus(200)
             ->assertJsonStructure(['message', 'user']);
     }
 

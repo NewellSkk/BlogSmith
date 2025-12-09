@@ -1,22 +1,29 @@
 import { useContext, useState } from "react";
-import axiosClient, { initSanctum } from "../api/axiosClient";
+import axiosClient from "../api/axiosClient";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import Cookies from "js-cookie";
 import styles from "../styles/Auth.module.css";
 
 const Register = () => {
-  const [form, setForm] = useState({ name: "", email: "", password: "",password_confirmation:"" });
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    password_confirmation: "",
+  });
   const { setUser } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const submit = async (e) => {
     e.preventDefault();
 
-    await initSanctum();
+
 
     try {
       const res = await axiosClient.post("/register", form);
       setUser(res.data.user);
+      Cookies.set("access_token", res.data.token, { expires: 7 });
       navigate("/");
     } catch (error) {
       console.log("ERROR:", error.response?.data || error);
@@ -60,20 +67,22 @@ const Register = () => {
           />
         </div>
 
-          <div className={styles.formGroup}>
+        <div className={styles.formGroup}>
           <label className={styles.label}>Confirm Password</label>
           <input
             type="password"
             placeholder="Password"
             autoComplete="current-password"
             className={styles.input}
-            onChange={(e) => setForm({ ...form, password_confirmation: e.target.value })}
+            onChange={(e) =>
+              setForm({ ...form, password_confirmation: e.target.value })
+            }
           />
         </div>
 
         <button className={styles.btn}>Register</button>
       </form>
-       <p style={{ marginTop: "10px" }}>
+      <p style={{ marginTop: "10px" }}>
         Already registered? <a href="/login">Login</a>
       </p>
     </div>

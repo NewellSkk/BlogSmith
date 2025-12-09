@@ -47,22 +47,21 @@ class AuthController extends Controller
         }
         //Delete existing tokens-single device login
         $user->tokens()->delete();
-        
+
         //New token
         $token = $user->createToken('auth-token')->plainTextToken;
 
         return response()->json([
             'message' => 'Login Successful',
             'user' => $user,
-            'access_token'=>$token,
-            'token_type'=>'Bearer',
-        ], 201);
+            'token'=>$token,       
+        ]);
     }
 
     public function logout(Request $request)
     {
         $request->user()->tokens()->delete();
-      
+
         return response()->json([
             'message' => 'Logout successful'
         ]);

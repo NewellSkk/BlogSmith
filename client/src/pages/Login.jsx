@@ -2,6 +2,7 @@ import { useState, useContext } from "react";
 import axiosClient, { initSanctum } from "../api/axiosClient";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
 import styles from "../styles/Auth.module.css";
 
 export default function Login() {
@@ -11,11 +12,11 @@ export default function Login() {
 
   const submit = async (e) => {
     e.preventDefault();
-    await initSanctum();
 
     try {
       const res = await axiosClient.post("/login", form);
       setUser(res.data.user);
+      Cookies.set("access_token", res.data.token, { expires: 7 });
       navigate("/");
     } catch (error) {
       console.log("Full error:", error.response?.data);
@@ -52,7 +53,7 @@ export default function Login() {
 
         <button className={styles.btn}>Login</button>
       </form>
-       <p style={{ marginTop: "10px" }}>
+      <p style={{ marginTop: "10px" }}>
         New here? <a href="/register">Create an account</a>
       </p>
     </div>
