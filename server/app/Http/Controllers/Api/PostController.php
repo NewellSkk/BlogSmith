@@ -6,7 +6,10 @@ use App\Models\Post;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PostResource;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\Auth;
+
+use function PHPUnit\Framework\throwException;
 
 class PostController extends Controller
 {
@@ -16,7 +19,7 @@ class PostController extends Controller
     public function index()
     {
         $query = Post::with('user')->latest()->get();
-        $posts = PostResource::collection($query);
+        $posts = PostResource::collection($query);//ADD PAGINATION FOR LARGER DATASETS
         return response()->json([
             'success' => true,
             'message' => 'Posts retrieval successful',
@@ -36,7 +39,7 @@ class PostController extends Controller
             'title' => 'required',
             'body' => 'required'
         ]);
-        $incomingFields = [...$incomingFields, 'user_id' => Auth::user()->id];
+        $incomingFields = [...$incomingFields, 'user_id' => $request->user()->id];
         $post = Post::create($incomingFields);
 
         return response()->json([
@@ -65,8 +68,11 @@ class PostController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Post $post)
+    public function edit(Post $post, Request $request)
     {
+        if($request->user()->id!=$post->user_id){
+            throw new AuthorizationException("Not allowed to edit this post.");
+        }
         $value = new PostResource($post);
         return response()->json([
             'post' => $value
