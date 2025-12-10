@@ -41,11 +41,11 @@ class PostController extends Controller
         ]);
         $incomingFields = [...$incomingFields, 'user_id' => $request->user()->id];
         $post = Post::create($incomingFields);
-
+        $data= new PostResource($post); 
         return response()->json([
             'success' => true,
             'message' => 'Post created successfully',
-            'data' => $post
+            'data' => $data
         ], 201);
     }
 

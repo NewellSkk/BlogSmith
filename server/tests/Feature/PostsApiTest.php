@@ -28,4 +28,31 @@ class PostsApiTest extends TestCase
                 'posts' => ['*' => ['id', 'title', 'body', 'user']]
             ])->assertJsonCount(5, 'posts');
     }
+
+    #[Test]
+    public function authenticated_user_can_create_post(): void
+    {
+        $user = User::factory()->create();
+        $postData = [
+            'title' => 'Test Title',
+            'body' => 'This is the test body.',
+        ];
+        $response = $this->actingAsSanctum($user)->postJson('/api/posts', $postData);
+        $response->assertStatus(201)
+            ->assertJsonStructure(['success', 'message', 'data' => ['id', 'title', 'body']])
+            ->assertJson([
+                'success' => true,
+                'message' => 'Post created successfully',
+                'data' => [
+                    'title' => 'Test Title',
+                    'body' => 'This is the test body.',
+                ]
+            ]);
+
+        $this->assertDatabaseHas('posts', [
+            'title' => 'Test Title',
+            'body' => 'This is the test body.',
+            'user_id' => $user->id,
+        ]);
+    }
 }
