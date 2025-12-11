@@ -19,7 +19,7 @@ class PostController extends Controller
     public function index()
     {
         $query = Post::with('user')->latest()->get();
-        $posts = PostResource::collection($query);//ADD PAGINATION FOR LARGER DATASETS
+        $posts = PostResource::collection($query); //ADD PAGINATION FOR LARGER DATASETS
         return response()->json([
             'success' => true,
             'message' => 'Posts retrieval successful',
@@ -41,7 +41,7 @@ class PostController extends Controller
         ]);
         $incomingFields = [...$incomingFields, 'user_id' => $request->user()->id];
         $post = Post::create($incomingFields);
-        $data= new PostResource($post); 
+        $data = new PostResource($post);
         return response()->json([
             'success' => true,
             'message' => 'Post created successfully',
@@ -70,7 +70,7 @@ class PostController extends Controller
      */
     public function edit(Post $post, Request $request)
     {
-        if($request->user()->id!=$post->user_id){
+        if ($request->user()->id != $post->user_id) {
             throw new AuthorizationException("Not allowed to edit this post.");
         }
         $value = new PostResource($post);
@@ -85,16 +85,14 @@ class PostController extends Controller
     public function update(Request $request, Post $post)
     {
         // VALIDATION
-        try {
-            $incomingFields = $request->validate([
-                'title' => 'required',
-                'body' => 'required'
-            ]);
-        } catch (\Illuminate\Validation\ValidationException $err) {
-            return response()->json([
-                'errors' => $err->errors(),
-                'message' => 'Validation failed, check your input.'
-            ]);
+
+        $incomingFields = $request->validate([
+            'title' => 'required',
+            'body' => 'required'
+        ]);
+        //AUTHIORIZATION
+        if($post->user_id!=$request->user()->id){
+            throw new AuthorizationException("You cannot edit this post");
         }
         //SANITIZATION
         $sanitized = [
@@ -102,22 +100,23 @@ class PostController extends Controller
             'body' => strip_tags($incomingFields['body'])
         ];
         // DATABASE UPDATE
-        $post->update($incomingFields);
+        $post->update($sanitized);
         return response()->json([
-            'message'=>'Post update successful'
-        ],200);
+            'message' => 'Post update successful',
+            'post'=> new PostResource($post),
+        ], 200);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Post $post)
+    public function destroy(Post $post, Request $request)
     {
-        if ($post->user_id != Auth::user()->id) {
-            return response()->json(['success' => false, 'message' => 'Unauthorized action'], 401);
-        };
+        if ($post->user_id != $request->user()->id) {
+            throw new AuthorizationException('You cannot delete this post');
+        }
 
         $post->delete();
-        return response(null, 201);
+        return response()->json(['message'=>'Post deleted successfully'],200);
     }
 }
